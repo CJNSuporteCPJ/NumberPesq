@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <title>Conversor de Números de Processo para PESQ</title>
     <link rel="icon" type="image/png" href="caneca-de-cerveja.png">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-8">
     <div class="p-6 w-full max-w-7xl">
         <h1 class="text-2xl font-bold mb-6 text-center">Conversor de Número de Processo para PESQ</h1>
@@ -18,7 +20,8 @@
             <div class="w-full lg:w-3/5">
                 <div class="flex items-center justify-between mb-2">
                     <label class="font-semibold">Resultado:</label>
-                    <button id="copiar-btn" onclick="copiarTabela()" class="text-gray-600 hover:text-black transition" title="Copiar tabela">Copiar</button>
+                    <button id="copiar-btn" onclick="copiarTabela()" class="text-gray-600 hover:text-black transition"
+                        title="Copiar tabela">Copiar</button>
                 </div>
                 <div class="border bg-gray-50 overflow-x-auto h-[65vh]">
                     <table id="tabela" class="table-auto w-full border-collapse text-sm">
@@ -27,6 +30,8 @@
                                 <th class="border p-2 text-left">Número Original</th>
                                 <th class="border p-2 text-left">Número PESQ</th>
                                 <th class="border p-2 text-left">'Número PESQ',</th>
+                                <th class="border p-2 text-left">Número CNJ</th>
+                                <th class="border p-2 text-left">Valido?</th>
                             </tr>
                         </thead>
                         <tbody id="corpo-tabela">
@@ -38,48 +43,76 @@
     </div>
     <script>
         function converter() {
-            const entrada = document.getElementById('input').value.trim()
-            const linhas = entrada.split('\n').filter(l => l.trim() !== '')
-            const corpo = document.getElementById('corpo-tabela')
-
-            corpo.innerHTML = ''
+            const entrada = document.getElementById('input').value.trim();
+            const linhas = entrada.split('\n').filter(l => l.trim() !== '');
+            const corpo = document.getElementById('corpo-tabela');
+            corpo.innerHTML = '';
 
             linhas.forEach(linha => {
-                const original = linha.trim()
-                const apenasNumeros = original.replace(/[^\d]/g, '')
-                const semZeros = apenasNumeros.replace(/^0+/, '')
-                const pesqFormatado = `'${semZeros}',`
+                const original = linha.trim();
+                const apenasNumeros = original.replace(/[^\d]/g, '');
+                const semZeros = apenasNumeros.replace(/^0+/, '');
+                const pesqFormatado = `'${semZeros}',`;
 
-                const tr = document.createElement('tr')
+                const numeroCNJ = formatarCNJ(preencherComZeros(apenasNumeros));
+
+                const valido = validarAno(numeroCNJ);
+
+                const tr = document.createElement('tr');
                 tr.innerHTML = `
-          <td class="border p-2">${original}</td>
-          <td class="border p-2">${semZeros}</td>
-          <td class="border p-2">${pesqFormatado}</td>
-        `
-                corpo.appendChild(tr)
-            })
+                    <td class="border p-2">${original}</td>
+                    <td class="border p-2">${semZeros}</td>
+		            <td class="border p-2">${pesqFormatado}</td>
+                    <td class="border p-2">${numeroCNJ}</td>
+                    <td class="border p-2">${valido ? 'Sim' : 'Não'}</td>
+                `;
+                corpo.appendChild(tr);
+            });
+        }
+
+        function preencherComZeros(numero) {
+            return numero.padStart(20, '0');
+        }
+
+        function formatarCNJ(numero) {
+            alert(numero)
+            if (numero.length === 20) {
+                return numero.replace(/(\d{7})(\d{2})(\d{4})(\d{4})(\d{1})/, '$1-$2.$3.$4.$5');
+            } else {
+                return 'Formato Inválido';
+            }
+        }
+
+        function validarAno(numeroCNJ) {
+            const ano = numeroCNJ.split('.')[1];
+            const anoValido = parseInt(ano, 10);
+            return anoValido >= 1950 && anoValido <= 2100;
         }
 
         function copiarTabela() {
-            const linhas = Array.from(document.querySelectorAll('#tabela tbody tr'))
-            if (linhas.length === 0) return
+            const cabecalhos = Array.from(document.querySelectorAll('#tabela thead th')).map(th => th.innerText);
+            const linhas = Array.from(document.querySelectorAll('#tabela tbody tr'));
+            if (linhas.length === 0) return;
 
-            const texto = linhas.map(linha => {
-                const colunas = Array.from(linha.querySelectorAll('td')).map(td => td.innerText)
-                return colunas.join('\t')
-            }).join('\n')
+            const texto = [
+                cabecalhos.join('\t')
+            ].concat(linhas.map(linha => {
+                const colunas = Array.from(linha.querySelectorAll('td')).map(td => td.innerText);
+                return colunas.join('\t');
+            })).join('\n');
 
             navigator.clipboard.writeText(texto).then(() => {
-                const btn = document.getElementById('copiar-btn')
-                btn.textContent = 'Copiado'
+                const btn = document.getElementById('copiar-btn');
+                btn.textContent = 'Copiado';
 
                 setTimeout(() => {
-                    btn.textContent = 'Copiar'
-                }, 2000)
+                    btn.textContent = 'Copiar';
+                }, 2000);
             }).catch(() => {
-                alert('Erro ao copiar tabela.')
-            })
+                alert('Erro ao copiar tabela.');
+            });
         }
     </script>
 </body>
+
 </html>
