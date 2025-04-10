@@ -75,13 +75,25 @@
         }
 
         function formatarCNJ(numero) {
-            alert(numero)
+            // Remove tudo que não for número
+            numero = numero.replace(/\D/g, '');
+
+            // Verifica se o número tem exatamente 20 caracteres
             if (numero.length === 20) {
-                return numero.replace(/(\d{7})(\d{2})(\d{4})(\d{4})(\d{1})/, '$1-$2.$3.$4.$5');
+                // Divide o número em partes e adiciona a pontuação
+                let parte1 = numero.slice(0, 7);
+                let parte2 = numero.slice(7, 9);
+                let parte3 = numero.slice(9, 13);
+                let parte4 = numero.slice(13, 14);
+                let parte5 = numero.slice(14, 16);
+                let parte6 = numero.slice(16, 20);
+
+                return `${parte1}-${parte2}.${parte3}.${parte4}.${parte5}.${parte6}`;
             } else {
                 return 'Formato Inválido';
             }
         }
+
 
         function validarAno(numeroCNJ) {
             const ano = numeroCNJ.split('.')[1];
