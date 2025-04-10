@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Conversor de Números de Processo para PESQ</title>
+    <link rel="icon" type="image/png" href="caneca-de-cerveja.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-8">
+    <div class="p-6 w-full max-w-7xl">
+        <h1 class="text-2xl font-bold mb-6 text-center">Conversor de Número de Processo para PESQ</h1>
+        <div class="flex flex-col lg:flex-row gap-6">
+            <div class="w-full lg:w-2/5">
+                <label for="input" class="block mb-2 font-semibold">Cole os números de processo:</label>
+                <textarea id="input" oninput="converter()" class="w-full p-3 border resize-none aspect-square h-[65vh]"
+                    placeholder="Cada número em uma linha..."></textarea>
+            </div>
+            <div class="w-full lg:w-3/5">
+                <div class="flex items-center justify-between mb-2">
+                    <label class="font-semibold">Resultado:</label>
+                    <button id="copiar-btn" onclick="copiarTabela()" class="text-gray-600 hover:text-black transition" title="Copiar tabela">Copiar</button>
+                </div>
+                <div class="border bg-gray-50 overflow-x-auto h-[65vh]">
+                    <table id="tabela" class="table-auto w-full border-collapse text-sm">
+                        <thead class="bg-gray-200 sticky top-0">
+                            <tr>
+                                <th class="border p-2 text-left">Número Original</th>
+                                <th class="border p-2 text-left">Número PESQ</th>
+                                <th class="border p-2 text-left">'Número PESQ',</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpo-tabela">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function converter() {
+            const entrada = document.getElementById('input').value.trim()
+            const linhas = entrada.split('\n').filter(l => l.trim() !== '')
+            const corpo = document.getElementById('corpo-tabela')
+
+            corpo.innerHTML = ''
+
+            linhas.forEach(linha => {
+                const original = linha.trim()
+                const apenasNumeros = original.replace(/[^\d]/g, '')
+                const semZeros = apenasNumeros.replace(/^0+/, '')
+                const pesqFormatado = `'${semZeros}',`
+
+                const tr = document.createElement('tr')
+                tr.innerHTML = `
+          <td class="border p-2">${original}</td>
+          <td class="border p-2">${semZeros}</td>
+          <td class="border p-2">${pesqFormatado}</td>
+        `
+                corpo.appendChild(tr)
+            })
+        }
+
+        function copiarTabela() {
+            const linhas = Array.from(document.querySelectorAll('#tabela tbody tr'))
+            if (linhas.length === 0) return
+
+            const texto = linhas.map(linha => {
+                const colunas = Array.from(linha.querySelectorAll('td')).map(td => td.innerText)
+                return colunas.join('\t')
+            }).join('\n')
+
+            navigator.clipboard.writeText(texto).then(() => {
+                const btn = document.getElementById('copiar-btn')
+                btn.textContent = 'Copiado'
+
+                setTimeout(() => {
+                    btn.textContent = 'Copiar'
+                }, 2000)
+            }).catch(() => {
+                alert('Erro ao copiar tabela.')
+            })
+        }
+    </script>
+</body>
+</html>
